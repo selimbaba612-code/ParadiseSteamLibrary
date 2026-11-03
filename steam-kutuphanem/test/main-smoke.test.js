@@ -42,7 +42,7 @@ test('main.js pencereyi acar ve IPC kanallarini kaydeder', async (t) => {
   const electronStub = {
     app: {
       whenReady: () => Promise.resolve(),
-      getVersion: () => '0.1.0',
+      getVersion: () => '0.2.0',
       getPath: () => userDataDir,
       on: (event, fn) => { (appListeners[event] = appListeners[event] || []).push(fn); },
       quit() {}
@@ -81,15 +81,27 @@ test('main.js pencereyi acar ve IPC kanallarini kaydeder', async (t) => {
   assert.ok(win.options.webPreferences.preload.endsWith(path.join('preload', 'preload.js')));
   assert.ok(win.loadedFile.endsWith(path.join('renderer', 'index.html')));
 
-  for (const channel of ['library:get', 'library:refresh', 'store:search', 'data:toggle-favorite', 'data:set-note', 'game:launch', 'app:info']) {
+  for (const channel of [
+    'library:get', 'library:refresh', 'store:search', 'data:toggle-favorite', 'data:set-note',
+    'game:launch', 'game:install', 'game:store', 'app:info', 'auth:status', 'auth:register',
+    'auth:login', 'auth:logout', 'catalog:featured', 'catalog:browse'
+  ]) {
     assert.ok(handlers.has(channel), `${channel} kanali kayitli olmali`);
   }
+
+  const status = await handlers.get('auth:status')({ sender: {} });
+  assert.equal(status.username, null, 'ilk acilista oturum kapali olmali');
+  assert.equal(status.userCount, 0);
+
+  // Kayit ol ve kullaniciya özel veri yaz
+  const session = await handlers.get('auth:register')({ sender: {} }, 'smoke_user', 'sifre123');
+  assert.equal(session.username, 'smoke_user');
 
   const state = await handlers.get('library:get')({ sender: {} });
   assert.ok(Array.isArray(state.games), 'kutuphane durumu oyun listesi dondurmeli');
 
   const info = await handlers.get('app:info')({ sender: {} });
-  assert.equal(info.version, '0.1.0');
+  assert.equal(info.version, '0.2.0');
 
   const favorite = await handlers.get('data:toggle-favorite')({ sender: {} }, 730);
   assert.equal(favorite.favorite, true);
@@ -106,7 +118,13 @@ test('main.js pencereyi acar ve IPC kanallarini kaydeder', async (t) => {
   assert.equal(windows.length, 1, 'pencere yeniden acilmali');
   assert.deepEqual(duplicates, [], 'IPC kanallari ikinci kez kaydedilmemeli');
 
-  const dataFile = path.join(userDataDir, 'user-data.json');
+  // Hesaplar ve kullanici verisi ayri dosyalarda tutulmali
+  const accountsFile = path.join(userDataDir, 'accounts.json');
+  const accounts = JSON.parse(await fs.readFile(accountsFile, 'utf8'));
+  assert.ok(accounts.users.smoke_user, 'hesap dosyada yok');
+  assert.ok(!JSON.stringify(accounts).includes('sifre123'), 'sifre duz metin saklanmis!');
+
+  const dataFile = path.join(userDataDir, 'user-smoke_user.json');
   const saved = JSON.parse(await fs.readFile(dataFile, 'utf8'));
   assert.deepEqual(saved.favorites, ['730']);
   assert.equal(saved.notes['730'], 'deneme notu');

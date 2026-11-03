@@ -3,17 +3,18 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 
-const { UserDataStore } = require('./user-data-store');
+const { AccountStore } = require('./accounts');
+const { UserContext } = require('./user-context');
 const { LibraryService } = require('./library-service');
 const { registerIpcHandlers } = require('./ipc');
 
 const WINDOW_OPTIONS = {
-  width: 1280,
-  height: 820,
-  minWidth: 960,
-  minHeight: 640,
+  width: 1320,
+  height: 860,
+  minWidth: 1000,
+  minHeight: 660,
   title: 'Steam Kütüphanem',
-  backgroundColor: '#0b0f14',
+  backgroundColor: '#0d0716',
   show: false,
   webPreferences: {
     preload: path.join(__dirname, '..', 'preload', 'preload.js'),
@@ -27,13 +28,19 @@ class SteamKutuphanemApp {
   constructor() {
     this.mainWindow = null;
     this.ipcReady = false;
-    this.userDataStore = new UserDataStore(path.join(app.getPath('userData'), 'user-data.json'));
-    this.service = new LibraryService({ userDataStore: this.userDataStore });
+
+    const userDataDir = app.getPath('userData');
+    this.accounts = new AccountStore(path.join(userDataDir, 'accounts.json'));
+    this.context = new UserContext({
+      accounts: this.accounts,
+      dataDir: userDataDir,
+      createService: (userDataStore) => new LibraryService({ userDataStore })
+    });
     this.ready = this.init();
   }
 
   async init() {
-    await this.userDataStore.load();
+    await this.context.ready;
   }
 
   async createWindow() {
@@ -61,10 +68,10 @@ class SteamKutuphanemApp {
 
     registerIpcHandlers({
       ipcMain,
-      service: this.service,
+      context: this.context,
       launchUri: (uri) => shell.openExternal(uri),
       getVersion: () => app.getVersion(),
-      getSteamRoot: () => this.service.resolveSteamRoot()
+      getSteamRoot: () => this.context.service().resolveSteamRoot()
     });
   }
 }

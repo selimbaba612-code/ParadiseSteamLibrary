@@ -6,41 +6,109 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'none'; img-src https: data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'"
     />
-    <title>Steam Kütüphanem</title>
+    <title>Steam Kütüphanem — Paradise</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-logo">SK</span>
-        <div class="brand-text">
-          <h1>Steam Kütüphanem</h1>
-          <p id="steamRoot" class="muted">Steam klasörü aranıyor…</p>
+    <!-- ==================== GİRİŞ / KAYIT ==================== -->
+    <section id="authScreen" class="auth-screen">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <span class="brand-logo">SK</span>
+          <div>
+            <h1>Steam Kütüphanem</h1>
+            <p class="muted">Paradise Edition</p>
+          </div>
         </div>
+
+        <div class="auth-tabs">
+          <button id="authTabLogin" class="auth-tab active" type="button">Giriş yap</button>
+          <button id="authTabRegister" class="auth-tab" type="button">Kayıt ol</button>
+        </div>
+
+        <form id="authForm" class="auth-form" autocomplete="off">
+          <label for="authUsername">Kullanıcı adı</label>
+          <input id="authUsername" type="text" placeholder="ör. paradise_player" maxlength="20" required />
+
+          <label for="authPassword">Şifre</label>
+          <input id="authPassword" type="password" placeholder="en az 6 karakter" minlength="6" required />
+
+          <p id="authError" class="auth-error hidden"></p>
+          <button id="authSubmit" class="btn primary wide" type="submit">Giriş yap</button>
+          <button id="authGuest" class="btn wide" type="button">Misafir olarak devam et</button>
+        </form>
+
+        <p class="auth-note muted">
+          Hesaplar yalnızca bu bilgisayarda tutulur, şifreler scrypt ile özetlenir.
+        </p>
       </div>
-      <div class="actions">
-        <input id="searchInput" type="search" placeholder="Oyun ara (kurulu veya mağaza)" autocomplete="off" />
-        <button id="refreshBtn" class="btn" type="button">Yenile</button>
-      </div>
-    </header>
+    </section>
 
-    <nav class="filters" id="filterBar">
-      <button class="chip active" type="button" data-filter="all">Tümü <span id="countAll">0</span></button>
-      <button class="chip" type="button" data-filter="installed">Kurulu <span id="countInstalled">0</span></button>
-      <button class="chip" type="button" data-filter="favorites">Favoriler <span id="countFavorites">0</span></button>
-      <span id="sizeInfo" class="muted size-info"></span>
-    </nav>
+    <!-- ==================== UYGULAMA ==================== -->
+    <div id="appShell" class="app-shell hidden">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-logo">SK</span>
+          <div class="brand-text">
+            <h1>Steam Kütüphanem</h1>
+            <p id="steamRoot" class="muted">Steam klasörü aranıyor…</p>
+          </div>
+        </div>
 
-    <main class="content">
-      <section id="statusBar" class="status" role="status">Yükleniyor…</section>
-      <section id="gameGrid" class="grid" aria-label="Kütüphanedeki oyunlar"></section>
+        <div class="actions">
+          <input id="searchInput" type="search" placeholder="Oyun ara (kütüphane + Steam mağaza)" autocomplete="off" />
+          <button id="refreshBtn" class="btn" type="button">Yenile</button>
+          <div class="user-chip">
+            <span id="userName">misafir</span>
+            <button id="logoutBtn" class="link-btn" type="button" title="Çıkış yap">çıkış</button>
+          </div>
+        </div>
+      </header>
 
-      <section id="storeSection" class="store hidden">
-        <h2>Mağaza sonuçları</h2>
-        <div id="storeGrid" class="grid small"></div>
-      </section>
-    </main>
+      <nav class="tabs">
+        <button id="navLibrary" class="tab active" type="button" data-view="library">Kütüphanem</button>
+        <button id="navStore" class="tab" type="button" data-view="store">Mağaza</button>
+        <button id="navFree" class="tab" type="button" data-view="free">Bedava Oyunlar</button>
+        <span id="sizeInfo" class="muted size-info"></span>
+      </nav>
 
+      <!-- Kütüphane -->
+      <main id="libraryView" class="view">
+        <div class="filters" id="filterBar">
+          <button class="chip active" type="button" data-filter="all">Tümü <span id="countAll">0</span></button>
+          <button class="chip" type="button" data-filter="installed">Kurulu <span id="countInstalled">0</span></button>
+          <button class="chip" type="button" data-filter="favorites">Favoriler <span id="countFavorites">0</span></button>
+        </div>
+        <section id="statusBar" class="status" role="status">Yükleniyor…</section>
+        <section id="gameGrid" class="grid" aria-label="Kütüphanedeki oyunlar"></section>
+      </main>
+
+      <!-- Mağaza -->
+      <main id="storeView" class="view hidden">
+        <section id="storeSearchSection" class="store-block hidden">
+          <h2>Arama sonuçları</h2>
+          <div id="storeSearchGrid" class="grid small"></div>
+        </section>
+
+        <section id="freeSection" class="store-block">
+          <h2>Bedava oyunlar <span class="muted">(Steam'de ücretsiz)</span></h2>
+          <div id="freeGrid" class="grid small"></div>
+          <button id="freeMoreBtn" class="btn" type="button">Daha fazla göster</button>
+        </section>
+
+        <section id="featuredSection" class="store-block">
+          <h2>Öne çıkanlar</h2>
+          <div id="featuredSections"></div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span class="muted">Kurulu oyunlar yerel Steam dosyalarından okunur; hiçbir dosya değiştirilmez.</span>
+        <span id="appVersion" class="muted"></span>
+      </footer>
+    </div>
+
+    <!-- Detay paneli -->
     <aside id="detailPanel" class="detail hidden" aria-hidden="true">
       <button id="detailClose" class="detail-close" type="button" aria-label="Kapat">✕</button>
       <img id="detailImage" class="detail-image" alt="" />
@@ -55,11 +123,6 @@
     </aside>
 
     <div id="toast" class="toast hidden" role="status"></div>
-
-    <footer class="footer">
-      <span class="muted">Kurulu oyunlarını yerel Steam dosyalarından okur; hiçbir dosyayı değiştirmez.</span>
-      <span id="appVersion" class="muted"></span>
-    </footer>
 
     <script src="app.js"></script>
   </body>

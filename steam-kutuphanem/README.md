@@ -1,20 +1,24 @@
 # Steam Kütüphanem
 
-Sıfırdan yazılmış, küçük ve okunabilir bir **Steam kütüphane yöneticisi** (Electron).
-Kurulu oyunlarını yerel Steam dosyalarından okur, kapaklarını gösterir; favori ve not tutar.
-**Hiçbir dosyayı değiştirmez, oyun indirmez, DRM ile ilgili işlem yapmaz** — sadece okur ve `steam://` ile oyunu başlatır.
+Sıfırdan yazılmış bir **Steam kütüphane + mağaza tarayıcısı** (Electron).
+Kurulu oyunlarını yerel Steam dosyalarından okur, kapaklarını gösterir; Steam'in resmî
+mağaza API'siyle **tüm oyunları** arar, **bedava oyunları** listeler ve oyunu Steam'de açar.
+
+> **Kapsam sınırı:** Bu uygulama Steam DRM'ini **atlatmaz**, oyun dosyası **indirmez**, lisans **enjekte etmez**.
+> Bedava oyunlar için Steam istemcisinin kendi "Kütüphaneye ekle / Yükle" akışı (`steam://install/<appid>`) kullanılır.
+> SteamDB kazınmaz; Steam'in herkese açık uçları kullanılır.
 
 ## Özellikler
 
-- **Otomatik Steam bulma** — Windows / Linux / macOS ortak yollarını dener.
-- **Çoklu kütüphane desteği** — `libraryfolders.vdf` içindeki tüm klasörler taranır.
-- **Oyun listesi** — `appmanifest_*.acf` dosyalarından ad, boyut, son oynama tarihi ve kurulum durumu.
-- **Kapak görselleri** — Steam'in herkese açık CDN'inden (`header.jpg`).
-- **Arama** — önce kurulu oyunlarda, sonra Steam mağaza API'sinde (`/api/storesearch`).
-- **Favoriler ve notlar** — `user-data.json` içinde kalıcı olarak saklanır.
-- **Oyunu başlat** — `steam://rungameid/<appid>` adresini açar.
+- **Paradise teması** — koyu mor gece, neon pembe/mor vurgular, cam efektli paneller.
+- **Yerel hesap** — kullanıcı adı + şifre ile kayıt/giriş; şifreler **scrypt** ile tuzlanıp özetlenir, düz metin saklanmaz. Favori ve notlar **kullanıcıya özeldir**.
+- **Kütüphane** — `libraryfolders.vdf` + `appmanifest_*.acf` ile çoklu kütüphane taraması; boyut, son oynama, kurulum durumu.
+- **Mağaza** — öne çıkanlar (çok satanlar / yeni çıkanlar / indirimdekiler / yakında) ve sayfalı **tüm oyun araması**.
+- **Bedava oyunlar** — Steam'de ücretsiz oyunlar listesi, "Daha fazla göster" ile sayfalama.
+- **Steam kısayolları** — `steam://rungameid`, `steam://store`, `steam://install`.
 - **Güvenli mimari** — `contextIsolation: true`, `nodeIntegration: false`, daraltılmış CSP, preload köprüsü.
-- **Bağımlılık yok** — çalışma zamanında sadece Electron; HTTP için Node'un kendi `fetch`'i, JSON için `fs`.
+- **Çalışma zamanı bağımlılığı yok** — sadece Electron; HTTP için Node `fetch`, JSON için `fs`.
+
 
 ## Kurulum
 

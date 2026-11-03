@@ -46,6 +46,33 @@ async function fetchJson(url, { fetchImpl = globalThis.fetch, timeoutMs = REQUES
   }
 }
 
+/** Bir adresten duz metin (HTML) indirir; hata durumunda firlatir. */
+async function fetchText(url, { fetchImpl = globalThis.fetch, timeoutMs = REQUEST_TIMEOUT_MS } = {}) {
+  if (typeof fetchImpl !== 'function') throw new Error('fetch desteklenmiyor');
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetchImpl(url, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+
+    if (!response || !response.ok) {
+      throw new Error(`Steam istegi basarisiz: ${response ? response.status : 'yanit yok'}`);
+    }
+
+    return await response.text();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Magazada isimle arama yapar; hata durumunda bos liste dondurur. */
 async function searchStore(term, { fetchImpl, timeoutMs, lang = 'turkish', country = 'TR' } = {}) {
   const query = String(term ?? '').trim();
@@ -106,4 +133,4 @@ async function getAppDetails(appid, { fetchImpl, timeoutMs, lang = 'turkish', co
   }
 }
 
-module.exports = { searchStore, getAppDetails, buildImageUrl, fetchJson };
+module.exports = { searchStore, getAppDetails, buildImageUrl, fetchJson, fetchText };
