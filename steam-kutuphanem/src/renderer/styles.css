@@ -274,6 +274,17 @@ body {
   font-size: 13px;
 }
 
+.version-chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  color: var(--accent-2);
+  background: rgba(255, 79, 163, 0.12);
+  border: 1px solid rgba(255, 79, 163, 0.35);
+  white-space: nowrap;
+}
+
 /* ---------------- Sekmeler / filtreler ---------------- */
 
 .tabs {

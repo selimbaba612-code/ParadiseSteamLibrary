@@ -13,7 +13,7 @@ const WINDOW_OPTIONS = {
   height: 860,
   minWidth: 1000,
   minHeight: 660,
-  title: 'Steam Kütüphanem',
+  title: 'Steam Kütüphanem — Paradise',
   backgroundColor: '#0d0716',
   show: false,
   webPreferences: {

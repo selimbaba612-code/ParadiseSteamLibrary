@@ -1,7 +1,7 @@
 {
   "name": "steam-kutuphanem",
   "productName": "Steam Kutuphanem",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Kendi Steam kutuphane yoneticin: kurulu oyunlari listeler, kapaklarini gosterir, favori ve not tutar.",
   "main": "src/main/main.js",
   "author": "",

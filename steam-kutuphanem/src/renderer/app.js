@@ -55,7 +55,7 @@
       'storeView', 'filterBar', 'countAll', 'countInstalled', 'countFavorites', 'statusBar',
       'gameGrid', 'storeSearchSection', 'storeSearchGrid', 'freeSection', 'freeGrid', 'freeMoreBtn',
       'featuredSection', 'featuredSections', 'detailPanel', 'detailClose', 'detailImage',
-      'detailTitle', 'detailMeta', 'noteInput', 'noteSaveBtn', 'launchBtn', 'toast', 'appVersion'
+      'detailTitle', 'detailMeta', 'noteInput', 'noteSaveBtn', 'launchBtn', 'toast', 'appVersion', 'versionChip'
     ];
     for (const id of ids) dom[id] = document.getElementById(id);
   }
@@ -457,6 +457,7 @@
       const info = await api.getAppInfo();
       state.info = info;
       if (dom.appVersion && info && info.version) dom.appVersion.textContent = `v${info.version}`;
+      if (dom.versionChip && info && info.version) dom.versionChip.textContent = `Paradise v${info.version}`;
     } catch {
       // surum bilgisi kritik degil
     }
