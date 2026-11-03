@@ -1,0 +1,2 @@
+# Windows toplu is dosyalari cmd.exe icin CRLF ile saklanmali
+*.bat text eol=crlf

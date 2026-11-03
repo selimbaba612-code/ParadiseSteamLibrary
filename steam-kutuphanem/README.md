@@ -35,7 +35,20 @@ Windows için tek dosya portable exe:
 npm run build-portable
 ```
 
-## Testler
+## Windows'ta kurulum (en kolay yol)
+
+1. Node.js LTS kur: https://nodejs.org (kurulumdan sonra bilgisayarı yeniden başlat)
+2. Zip'i bir klasöre çıkar
+3. **`kur.bat`** → çift tık (bir kez; `npm install` çalışır)
+4. **`baslat.bat`** → çift tık (uygulama açılır)
+
+Bir şey ters giderse:
+
+- **`tani.bat`** → çift tık; `tani.txt` oluşturur (Node sürümü, Steam klasörü, loglar). Bunu paylaş.
+- Hata detayları: `kurulum-log.txt` ve `calisma-log.txt`
+- Elle çalıştırmak için: klasörde `cmd` aç → `npm install` → `npm start`
+
+
 
 Tamamı ağ ve ekran gerektirmeyen 37 test:
 
