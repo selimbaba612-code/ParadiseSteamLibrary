@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src https: data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'"
+    />
+    <title>Steam Kütüphanem</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-logo">SK</span>
+        <div class="brand-text">
+          <h1>Steam Kütüphanem</h1>
+          <p id="steamRoot" class="muted">Steam klasörü aranıyor…</p>
+        </div>
+      </div>
+      <div class="actions">
+        <input id="searchInput" type="search" placeholder="Oyun ara (kurulu veya mağaza)" autocomplete="off" />
+        <button id="refreshBtn" class="btn" type="button">Yenile</button>
+      </div>
+    </header>
+
+    <nav class="filters" id="filterBar">
+      <button class="chip active" type="button" data-filter="all">Tümü <span id="countAll">0</span></button>
+      <button class="chip" type="button" data-filter="installed">Kurulu <span id="countInstalled">0</span></button>
+      <button class="chip" type="button" data-filter="favorites">Favoriler <span id="countFavorites">0</span></button>
+      <span id="sizeInfo" class="muted size-info"></span>
+    </nav>
+
+    <main class="content">
+      <section id="statusBar" class="status" role="status">Yükleniyor…</section>
+      <section id="gameGrid" class="grid" aria-label="Kütüphanedeki oyunlar"></section>
+
+      <section id="storeSection" class="store hidden">
+        <h2>Mağaza sonuçları</h2>
+        <div id="storeGrid" class="grid small"></div>
+      </section>
+    </main>
+
+    <aside id="detailPanel" class="detail hidden" aria-hidden="true">
+      <button id="detailClose" class="detail-close" type="button" aria-label="Kapat">✕</button>
+      <img id="detailImage" class="detail-image" alt="" />
+      <h2 id="detailTitle"></h2>
+      <p id="detailMeta" class="muted"></p>
+      <label class="note-label" for="noteInput">Notun</label>
+      <textarea id="noteInput" maxlength="500" rows="4" placeholder="Bu oyunla ilgili notunu yaz…"></textarea>
+      <div class="detail-actions">
+        <button id="noteSaveBtn" class="btn" type="button">Notu kaydet</button>
+        <button id="launchBtn" class="btn primary" type="button">Steam'de başlat</button>
+      </div>
+    </aside>
+
+    <div id="toast" class="toast hidden" role="status"></div>
+
+    <footer class="footer">
+      <span class="muted">Kurulu oyunlarını yerel Steam dosyalarından okur; hiçbir dosyayı değiştirmez.</span>
+      <span id="appVersion" class="muted"></span>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
