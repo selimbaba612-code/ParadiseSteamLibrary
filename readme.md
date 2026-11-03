@@ -67,6 +67,41 @@ npm run build-win
 npm run build
 ```
 
+## 🧪 Tests
+
+The project ships with two headless smoke test suites. They do not need a display or a real Steam installation.
+
+```bash
+# Run everything
+npm test
+
+# Main process (IPC handlers, config, library, ZIP installation)
+npm run test:main
+
+# Renderer / UI (index.html + renderer.js inside jsdom)
+npm run test:ui
+```
+
+The main process suite replaces Electron with an in-memory stub and drives the real IPC
+handlers the renderer uses, so a missing handler or a crash during startup fails the build.
+The UI suite boots the real interface in jsdom with a stubbed Steam API and checks that the
+home page, settings, library navigation and search keep working.
+
+## [v2.0.4] - 11/03/2026
+
+# Paradise Steam Library v2.0.4
+
+## Bug Fixes
+- The application could crash when the main window was reopened (macOS dock icon / `activate`): IPC handlers were registered a second time. A single manager instance is now reused and handlers are registered only once.
+- The window could open before `config.json` and the game caches were loaded, so the settings screen occasionally showed an empty Steam path. Window creation now waits for initialization.
+- The renderer defined `safeSteamFetch` twice; the second definition silently replaced the version with the `AbortController` timeout, so Steam requests could hang forever and every call was delayed by 200 ms. The duplicate was removed and the timeout-guarded version now also retries without custom headers.
+- Player activity requests were sent even when no API endpoint is configured, which produced guaranteed network errors in the console.
+
+## Tests
+- Added `npm test` with a main process smoke suite (Electron stubbed) and a jsdom UI smoke suite.
+
+---
+
 ## [v2.0.3] - 08/13/2025
 
 # Paradise Steam Library v2.0.3

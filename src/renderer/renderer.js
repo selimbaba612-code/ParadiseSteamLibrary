@@ -29,7 +29,13 @@ async function safeSteamFetch(url, options = {}) {
         return response;
     } catch (error) {
         console.error('Steam API çağrısı hatası:', error);
-        throw error;
+        // Bazı uç noktalar özel başlıklarla reddediyor: başlıksız son bir deneme
+        try {
+            return await fetch(url);
+        } catch (retryError) {
+            console.error('Steam API çağrısı (başlıksız) hatası:', retryError);
+            throw retryError;
+        }
     }
 }
 
@@ -4503,20 +4509,7 @@ const langToCountry = {
   tr: 'TR', en: 'US', de: 'DE', fr: 'FR', es: 'ES', ru: 'RU', zh: 'CN', ja: 'JP', it: 'IT', pt: 'PT', ko: 'KR', pl: 'PL', az: 'AZ'
 };
 
-// Yardımcı fonksiyon: Steam API'ye güvenli fetch
-async function safeSteamFetch(url) {
-    // 200ms gecikme
-    await new Promise(r => setTimeout(r, 200));
-    try {
-        return await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-        });
-    } catch (e) {
-        // fallback: User-Agent olmadan tekrar dene
-        return await fetch(url);
-    }
-}
+// Not: safeSteamFetch yalnızca dosyanın başında tanımlıdır. Aşağıda ikinci bir
+// tanım bulunuyordu ve zaman aşımı (AbortController) korumalı sürümü eziyordu.
 
 // Tüm Oyunlar ve filtreleme ile ilgili fonksiyonlar kaldırıldı

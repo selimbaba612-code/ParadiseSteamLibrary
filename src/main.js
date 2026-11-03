@@ -32,8 +32,11 @@ class SteamLibraryManager {
     this.onlineGamesCache = { games: [], cached_at: 0 };
     this.lastApiCallAtByHost = {};
     this.discordRPC = null;
+    this.ipcReady = false;
 
-    this.init(); 
+    // init() çalışırken pencere açılırsa config henüz yüklenmemiş olur.
+    // Bu yüzden promise'i saklayıp createWindow() içinde bekliyoruz.
+    this.ready = this.init();
   }
 
   async openUrlInChrome(url) {
@@ -116,6 +119,11 @@ class SteamLibraryManager {
   }
 
   async startUserSession() {
+    // USER_ACTIVITY_API tanımlı değilse istek atmaya çalışmayalım
+    if (!USER_ACTIVITY_API) {
+      return;
+    }
+
     try {
       userSessionId = uuidv4();
       const userData = {
@@ -149,7 +157,7 @@ class SteamLibraryManager {
   }
 
   async endUserSession() {
-    if (!userSessionId || !isOnline) return;
+    if (!userSessionId || !isOnline || !USER_ACTIVITY_API) return;
 
     try {
       const userData = {
@@ -174,6 +182,10 @@ class SteamLibraryManager {
   }
 
   async getActiveUsersCount() {
+    if (!USER_ACTIVITY_API) {
+      return 0;
+    }
+
     try {
       const response = await axios.get(`${USER_ACTIVITY_API}/count`, {
         timeout: 5000,
@@ -368,6 +380,11 @@ class SteamLibraryManager {
   }
 
   async createWindow() {
+    // Config ve cache'ler hazır olmadan pencere açmayalım
+    if (this.ready) {
+      await this.ready;
+    }
+
     this.mainWindow = new BrowserWindow({
       width: 1400,
       height: 900,
@@ -408,6 +425,11 @@ class SteamLibraryManager {
   }
 
   setupIPC() {
+    // Handler'lar global ipcMain'e kaydedilir; aynı kanalı ikinci kez
+    // kaydetmek Electron'da hata fırlatır (pencere yeniden açıldığında).
+    if (this.ipcReady) return;
+    this.ipcReady = true;
+
     // Window controls
     ipcMain.handle('window-minimize', () => {
       this.mainWindow.minimize();
@@ -1610,12 +1632,27 @@ class SteamLibraryManager {
 }
 
 // App event handlers
+// Tek bir manager örneği tutulur: pencere kapatılıp yeniden açıldığında
+// (macOS 'activate') yeni bir örnek oluşturmak IPC handler'larını ikinci kez
+// kaydetmeye ve uygulamanın çökmesine neden oluyordu.
+let steamManager = null;
+
+async function getManager() {
+  if (!steamManager) {
+    steamManager = new SteamLibraryManager();
+    await steamManager.ready;
+  }
+  return steamManager;
+}
+
 app.whenReady().then(async () => {
-  const manager = new SteamLibraryManager();
+  const manager = await getManager();
   await manager.createWindow();
-  
+
   // Kullanıcı oturumunu başlat
   await manager.startUserSession();
+}).catch((error) => {
+  console.error('Failed to start Paradise Steam Library:', error);
 });
 
 app.on('window-all-closed', async () => {
@@ -1636,9 +1673,13 @@ app.on('before-quit', async () => {
   }
 });
 
-app.on('activate', () => {
+app.on('activate', async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    const manager = new SteamLibraryManager();
-    manager.createWindow();
+    try {
+      const manager = await getManager();
+      await manager.createWindow();
+    } catch (error) {
+      console.error('Failed to reopen the main window:', error);
+    }
   }
 });
